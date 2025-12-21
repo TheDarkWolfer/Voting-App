@@ -29,7 +29,7 @@ def get_redis():
     redis_db = os.getenv('REDIS_DB','0')
 
     # Assemblage des variables d'environnement dans un objet Redis qui est ensuite passé à Flask 
-    Flask.redis = Redis(host=f"{redis_host}:{redis_port}",db=redis_db,timeout=redis_timeout)                                #Man I love fstrings <3
+    Flask.redis = Redis(host=f"{redis_host}:{redis_port}",db=redis_db,sock_timeout=redis_timeout)                                #Man I love fstrings <3
     
     return Flask.redis
 
