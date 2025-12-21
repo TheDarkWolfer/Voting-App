@@ -14,9 +14,23 @@ app = Flask(__name__)
 
 app.logger.setLevel(logging.INFO)
 
+# Ancienne fonction ; modifiée de par sa rigidité, et par besoin de pouvoir configurer certaines données à travers les variables d'environnement.
+ # Gardée pour des soucis de documentation et en cas de besoin futur
+#def get_redis():
+#    if not hasattr(Flask, 'redis'):
+#        Flask.redis = Redis(host="localhost", db=0, socket_timeout=5)
+#    return Flask.redis
+
 def get_redis():
-    if not hasattr(Flask, 'redis'):
-        Flask.redis = Redis(host="localhost", db=0, socket_timeout=5)
+    # Récupération des variables d'environnement
+    redis_host = os.getenv('REDIS_HOST','localhost')
+    redis_port = os.getenv('REDIS_PORT','6379')
+    redis_timeout = os.getenv('REDIS_TIMEOUT','5')
+    redis_db = os.getenv('REDIS_DB','0')
+
+    # Assemblage des variables d'environnement dans un objet Redis qui est ensuite passé à Flask 
+    Flask.redis = Redis(host=f"{redis_host}:{redis_port}",db=redis_db,timeout=redis_timeout)                                #Man I love fstrings <3
+    
     return Flask.redis
 
 @app.route("/", methods=['POST', 'GET'])
