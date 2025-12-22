@@ -1,0 +1,18 @@
+FROM mcr.microsoft.com/dotnet/sdk:7.0 
+COPY worker/ .
+EXPOSE 80
+EXPOSE 443
+# Variables d'environnement pour postgres
+ENV PG_HOST=postgresql
+ENV PG_PORT=5432
+ENV PG_USER=postgres
+ENV PG_PASSWORD=postgres
+ENV PG_DB=postgres
+
+#Pareil pour redis
+ENV REDIS_HOST=redis
+
+# Trying out something that doesn't take eons to compile itself
+# RUN dotnet restore
+# RUN dotnet publish -c release --self-contained false --no-restore
+ENTRYPOINT dotnet bin/release/net7.0/Worker.dll
