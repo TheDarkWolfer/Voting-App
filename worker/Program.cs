@@ -16,9 +16,29 @@ namespace Worker
         {
             try
             {
-                var pgsql = OpenDbConnection("Server=localhost;Username=postgres;Password=postgres;");
-                var redisConn = OpenRedisConnection("localhost");
-                var redis = redisConn.GetDatabase();
+
+							// Please don't make me change c# code to work with ENV variables, I don't know jack about c# and it took forever' (つ╥﹏╥)つ
+							var pgHost = Environment.GetEnvironmentVariable("PG_HOST") ?? "postgresql";
+							var pgPort = Environment.GetEnvironmentVariable("PG_PORT") ?? "5432";
+							var pgUser = Environment.GetEnvironmentVariable("PG_USER") ?? "postgres";
+							var pgPassword = Environment.GetEnvironmentVariable("PG_PASSWORD") ?? "postgres";
+							var pgDatabase = Environment.GetEnvironmentVariable("PG_DB") ?? "postgres";
+
+							var pgConnString = $"Server={pgHost};Port={pgPort};Username={pgUser};Password={pgPassword};Database={pgDatabase};";
+
+							var pgsql = OpenDbConnection(pgConnString);
+
+							var redisHost = Environment.GetEnvironmentVariable("REDIS_HOST") ?? "redis";
+
+							// I am this close to hardcoding credentials I swear (•̀⤙•́)
+							var redisConn = OpenRedisConnection(redisHost);
+
+						/* Old code, maybe it'll be useful someday to someone ?	
+              var pgsql = OpenDbConnection("Server=localhost;Username=postgres;Password=postgres;");
+              var redisConn = OpenRedisConnection("localhost");
+              */
+							var redis = redisConn.GetDatabase();
+							 
 
                 var keepAliveCommand = pgsql.CreateCommand();
                 keepAliveCommand.CommandText = "SELECT 1";
