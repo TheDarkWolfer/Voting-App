@@ -22,8 +22,14 @@ io.sockets.on("connection", function (socket) {
   })
 })
 
+// Un petit changement pour choisir la connection à la base de données PostgreSQL à travers les
+// variables d'environnement.
 const pool = new pg.Pool({
-  connectionString: "postgres://postgres:postgres@localhost/postgres",
+	if (process.env.POSTGRE_HOST) {
+		connectionString: `postgres://postgres:postgres@${process.env.POSTGRE_HOST}/postgres`,
+	} else {
+		connectionString: "postgres://postgres:postgres@$localhost/postgres",
+		}
 })
 
 async.retry(
