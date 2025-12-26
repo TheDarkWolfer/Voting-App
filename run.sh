@@ -10,7 +10,11 @@ case "$1" in
 		echo -e "Script permettant de lancer / interrompre les conteneurs."
 		echo -e "Arguments:"
 		echo -e "\t-h ou --help\t: affiche ce message"
+		echo -e "\t-c ou --compose\t: Lance avec docker compose"
 		echo -e "\t-k ou --killall\t: met fin à l'execution de tous les conteneurs docker lancés sur le système"
+		;;
+	-c|--compose)
+		docker compose up
 		;;
 	*)
 		# Logique similaire au script build.sh ; 
