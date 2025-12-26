@@ -1,0 +1,60 @@
+service:
+  
+  redis:
+    image: 'redis:latest'
+    expose:
+      - 6379:6379
+    networks:
+      - vote-network
+  
+  postgresql:
+    image: 'bitnami/postgresql:latest'
+    expose:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    networks:
+      - vote-network
+  
+  votebox:
+    build:
+      context: .
+      dockerfile: DOCKERFILE-Votebox
+    ports:
+      - 8080:8080
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - REDIS_TIMEOUT=5
+    depends_on:
+      - redis
+      -postgresql
+    networks:
+      - vote-network
+
+    worker:
+      build:
+        context: .
+        dockerfile: DOCKERFILE-Dotnet
+      ports:
+        - 80:80
+        - 443:443
+      environment:
+        - PG_HOST=postgresql
+        - PG_PORT=5432
+        - PG_USER=postgres
+        - PG_PASSWORD=postgres
+        - PG_DB=postgres
+        - REDIS_HOST=redis
+
+    dashboard:
+      build:
+        context: .
+        dockerfile: DOCKERFILE-Statistiques
+      ports:
+        - 8888:8888
+      environment:
+        - POSTGRE_HOST=postgresql
