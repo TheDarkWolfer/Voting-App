@@ -50,11 +50,13 @@ service:
         - PG_DB=postgres
         - REDIS_HOST=redis
 
-    dashboard:
-      build:
-        context: .
-        dockerfile: DOCKERFILE-Statistiques
-      ports:
-        - 8888:8888
-      environment:
-        - POSTGRE_HOST=postgresql
+  dashboard:
+    build:
+      context: .
+      dockerfile: DOCKERFILE-Statistiques
+    ports:
+      - "8888:8888"
+    environment:
+      - POSTGRES_HOST=postgresql
+    depends_on:
+      - postgresql
