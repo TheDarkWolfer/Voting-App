@@ -11,7 +11,11 @@ case "$1" in
 		echo -e "Arguments:"
 		echo -e "\t-h ou --help\t: affiche ce message"
 		echo -e "\t-c ou --compose\t: Lance avec docker compose"
+		echo -e "\t-s ou --swarm\t: Lance en mode Swarm"
 		echo -e "\t-k ou --killall\t: met fin à l'execution de tous les conteneurs docker lancés sur le système"
+		;;
+	-s|--swarm)
+		docker stack deploy voting-app --compose-file docker-compose-swarm.yml
 		;;
 	-c|--compose)
 		docker compose up

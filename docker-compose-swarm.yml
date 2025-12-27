@@ -70,6 +70,6 @@ services:
 
 networks:
   vote-network:
-    driver: bridge
+    driver: overlay
   processing-network:
-    driver: bridge
+    driver: overlay
