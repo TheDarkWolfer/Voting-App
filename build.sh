@@ -1,10 +1,29 @@
 #!/usr/bin/env bash
+
 echo -e "Build script for Camille's PRADO Docker project"
 
-#set -euo pipefail
+case "$1" in
+	-h|--help)
+		echo -e "Script permettant de construire les conteneurs Dockers du projet de Camille PRADO"
+		echo -e "Arguments : "
+		echo -e "-e|--edit\t: Modifier les variables d'environnement des DOCKERFILEs"
+		echo -e "-o|--options\t: Modifier les options de vote (plus simple que de modifier les dockerfiles dans leur entièreté)"
+		echo -e "-h|--help\: Affiche ce message"
+		;;
+	-e|--edit)
+
+	echo -e "Début du build des conteneurs..."
+
+# Un jour j'aurais le courage de réparer la tabulation (¬_¬")
+
 # Pour compter le nombre de conteneurs qui sont construits avec succès, pour faciliter la lecture des logs 
 COUNTER=0
 AMOUNT_OF_BUILDS=$(($(grep -c if $0)-2))
+
+# On source les différents .ENVs du projet 
+export $(grep -v '^#' .env-votebox | xargs)
+export $(grep -v '^#' .env-redis | xargs)
+export $(grep -v '^#' .env-postgresql | xargs)
 
 echo -e "Building the Redis container..."
 if docker build --tag voting-redis:1.0.0 -f=DOCKERFILE-Redis . ;
@@ -15,8 +34,14 @@ if docker build --tag voting-redis:1.0.0 -f=DOCKERFILE-Redis . ;
 		echo -e "╭────────────────────────────────────╮\n│ Error building the Redis container │\n╰────────────────────────────────────╯"
 fi
 
+# On laisse l'option de paramétrer certaines valeusr'
 echo -e "Building the voting container..."
-if docker build --tag voting-python:1.0.0 -f=DOCKERFILE-Votebox . ; 
+if docker build --tag voting-python:1.0.0  \
+	--build-arg REDIS_HOST="$REDIS_HOST" \
+	--build-arg REDIS_PORT="$REDIS_PORT" \
+	--build-arg REDIS_DB="$REDIS_DB" \
+	--build-arg REDIS_TIMEOUT="$REDIS_TIMEOUT" \
+	-f=DOCKERFILE-Votebox . ; 
 	then 
 		((COUNTER++))
 		echo -e "╭──────────────────────────────────────╮\n│ Done building the voting container ! │\n╰──────────────────────────────────────╯" 
@@ -43,7 +68,14 @@ if dotnet publish -c release --self-contained false --no-restore ./worker/ ;
 fi
 
 echo -e "Building the dotnet container..."
-if docker build --tag voting-worker:1.0.0 -f=DOCKERFILE-Dotnet . ; 
+if docker build --tag voting-worker:1.0.0 \
+	--build-arg PG_HOST="$PG_HOST" \
+	--build-arg PG_PORT="$PG_PORT" \
+	--build-arg PG_USER="$PG_USER" \
+	--build-arg PG_PASSWORD="$PG_PASSWORD" \
+	--build-arg PG_DB="$PG_DB" \
+	--build-arg REDIS_HOST="$REDIS_HOST" \
+	-f=DOCKERFILE-Dotnet . ; 
 	then 
 		((COUNTER++))
 		echo -e "╭──────────────────────────────────────╮\n│ Done building the Dotnet container ! │\n╰──────────────────────────────────────╯" 
@@ -52,7 +84,9 @@ if docker build --tag voting-worker:1.0.0 -f=DOCKERFILE-Dotnet . ;
 fi
 
 echo -e "Building the result dashboard container..."
-if docker build --tag voting-dashboard:1.0.0 -f=DOCKERFILE-Statistiques . ; 
+if docker build --tag voting-dashboard:1.0.0 \
+	--build-arg POSTGRE_HOST="$PG_HOST" \
+	-f=DOCKERFILE-Statistiques . ; 
 	then 
 		((COUNTER++))
 		echo -e "╭─────────────────────────────────────────────────╮\n│ Done building the results dashboard container ! │\n╰─────────────────────────────────────────────────╯" 

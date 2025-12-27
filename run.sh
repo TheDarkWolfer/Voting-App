@@ -41,6 +41,11 @@ case "$1" in
 	fi
 
 	echo -e "Launching python app container..."
+	
+	# On demande les options de vote à l'utilisateur.ice
+	read -p "Option A > " OPTION_A
+	read -p "Option B > " OPTION_B
+
 	if docker run -d --rm -p 8080:8080 --name voting-app --network vote-network voting-python:1.0.0 ; then
 		((COUNTER++))
 		echo -e "Voting app container launched !"

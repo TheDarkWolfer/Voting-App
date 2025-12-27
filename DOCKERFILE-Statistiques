@@ -2,5 +2,7 @@ FROM node:18
 COPY result/ .
 RUN npm install
 EXPOSE 8888
+
+# Encore une fois, config depuis les variables d'environnement ; cette fois, une seule valeur à paramétrer, c'est plus simple
 ENV POSTGRE_HOST=postgresql
 ENTRYPOINT npm start
