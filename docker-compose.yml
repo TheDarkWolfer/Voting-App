@@ -5,6 +5,11 @@ services:
       - 6379:6379
     networks:
       - processing-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
   
   postgresql:
     image: 'bitnami/postgresql:latest'
@@ -16,6 +21,12 @@ services:
       - POSTGRES_DB=postgres
     networks:
       - processing-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
   
   votebox:
     build:
@@ -28,12 +39,21 @@ services:
       - REDIS_PORT=6379
       - REDIS_DB=0
       - REDIS_TIMEOUT=5
+
+      - OPTION_A=Cats
+      - OPTION_B=Possums
+
     depends_on:
       - redis
       - postgresql
     networks:
       - vote-network
       - processing-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://votebox:8080 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   worker:
     build:
@@ -53,6 +73,12 @@ services:
       - processing-network
     depends_on:
       - postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f 'Worker.dll' >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
 
   dashboard:
     build:
@@ -67,6 +93,11 @@ services:
       - processing-network
     depends_on:
       - postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://dashboard:8888 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 networks:
   vote-network:

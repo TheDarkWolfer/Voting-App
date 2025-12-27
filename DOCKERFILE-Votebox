@@ -1,9 +1,16 @@
 FROM python:3.11.14-alpine3.23
 COPY vote/ .
 EXPOSE 8080
+
+# Accès à Redis
 ENV REDIS_HOST=redis 
 ENV REDIS_PORT=6379
 ENV REDIS_DB=0
 ENV REDIS_TIMEOUT=5
+
+#Choix des options
+ENV OPTION_A=Cats
+ENV OPTION_B=Dogs
+
 RUN pip install -r requirements.txt
 ENTRYPOINT python app.py
