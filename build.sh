@@ -11,14 +11,16 @@ case "$1" in
 		echo -e "-h|--help\: Affiche ce message"
 		;;
 	-e|--edit)
-
+		echo "NYI"
+		;;
+	*)
 	echo -e "Début du build des conteneurs..."
 
 # Un jour j'aurais le courage de réparer la tabulation (¬_¬")
 
 # Pour compter le nombre de conteneurs qui sont construits avec succès, pour faciliter la lecture des logs 
 COUNTER=0
-AMOUNT_OF_BUILDS=$(($(grep -c if $0)-2))
+AMOUNT_OF_BUILDS=$(($(grep -c if $0)-5))
 
 # On source les différents .ENVs du projet 
 export $(grep -v '^#' .env-votebox | xargs)
@@ -100,3 +102,5 @@ if (( $COUNTER == $AMOUNT_OF_BUILDS )) ; then
 fi
 
 echo -e "╭────────────────╮\n│ Builds :$COLOR $COUNTER / $AMOUNT_OF_BUILDS\e[0m │\n╰────────────────╯"
+;;
+esac

@@ -1,26 +1,40 @@
 services:
+
   redis:
     image: 'redis:latest'
+
     ports:
       - 6379:6379
     networks:
       - processing-network
+
+    volumes:
+      - votebox_redis:/data
+
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5
   
+
   postgresql:
     image: 'bitnami/postgresql:latest'
+
     ports:
       - 5432:5432
+
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres
+
     networks:
       - processing-network
+
+    volumes:
+      - votebox_pgdata:/var/lib/postgresql/data
+
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
@@ -28,12 +42,15 @@ services:
       retries: 5
       start_period: 10s
   
+
   votebox:
     build:
       context: .
       dockerfile: DOCKERFILE-Votebox
+
     ports:
       - 8080:8080
+
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
@@ -41,27 +58,32 @@ services:
       - REDIS_TIMEOUT=5
 
       - OPTION_A=Cats
-      - OPTION_B=Possums
+      - OPTION_B=Dogs
 
     depends_on:
       - redis
       - postgresql
+
     networks:
       - vote-network
       - processing-network
+
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://votebox:8080 || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
 
+
   worker:
     build:
       context: .
       dockerfile: DOCKERFILE-Dotnet
+
     ports:
       - 80:80
       - 443:443
+
     environment:
       - PG_HOST=postgresql
       - PG_PORT=5432
@@ -69,10 +91,13 @@ services:
       - PG_PASSWORD=postgres
       - PG_DB=postgres
       - REDIS_HOST=redis
+
     networks:
       - processing-network
+    
     depends_on:
       - postgresql
+    
     healthcheck:
       test: ["CMD-SHELL", "pgrep -f 'Worker.dll' >/dev/null || exit 1"]
       interval: 30s
@@ -80,19 +105,25 @@ services:
       retries: 3
       start_period: 20s
 
+
   dashboard:
     build:
       context: .
       dockerfile: DOCKERFILE-Statistiques
+
     ports:
       - "8888:8888"
+    
     environment:
       - POSTGRES_HOST=postgresql
+    
     networks:
       - vote-network
       - processing-network
+    
     depends_on:
       - postgresql
+    
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://dashboard:8888 || exit 1"]
       interval: 10s
@@ -104,3 +135,15 @@ networks:
     driver: bridge
   processing-network:
     driver: bridge
+
+  
+volumes:
+  votebox_pgdata:
+    labels:
+      project: votebox
+      role: database
+
+  votebox_redis:
+    labels:
+      project: votebox
+      role: cache
