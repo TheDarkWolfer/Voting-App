@@ -97,6 +97,7 @@ services:
     
     depends_on:
       - postgresql
+      - redis
     
     healthcheck:
       test: ["CMD-SHELL", "pgrep -f 'Worker.dll' >/dev/null || exit 1"]

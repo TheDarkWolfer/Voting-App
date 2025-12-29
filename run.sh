@@ -79,6 +79,7 @@ case "$1" in
 	
 	# On demande les options de vote à l'utilisateur.ice grâce à l'argument --options 
 	if [[ "$1" == "--options" ]] ; then
+		echo -e "╭─────────────────────────────────────╮\n│ Fonction expérimentale, attention ! │\n╰─────────────────────────────────────╯"
 		read -p "Option A > " OPTION_A
 		read -p "Option B > " OPTION_B
 	else 

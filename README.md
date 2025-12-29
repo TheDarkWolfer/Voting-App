@@ -31,3 +31,13 @@ Il faut noter que les variables d'environnement, telles que le choix des options
 
 ### Docker swarm 
 > [!WIP]
+De par la différence de fonctionnement de Docker Swarm, il faudra au préalable construire les conteneurs avant de les publier sur un registre externe. 
+Pour ce faire, il faut lancer le script `build.sh` au préalable, et publier les conteneurs comme suit :
+```bash 
+build.sh -l # L'argument -l permet de lister les conteneurs ayant étés construits'
+
+#N.B. On imagine que `camille` est le compte utilisateur.ice sur le registre distant
+docker push camille/voting-dashboard:1.0.0
+docker push camille/voting-worker:1.0.0
+docker push camille/votebox:1.0.0
+```

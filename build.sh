@@ -102,5 +102,14 @@ if (( $COUNTER == $AMOUNT_OF_BUILDS )) ; then
 fi
 
 echo -e "╭────────────────╮\n│ Builds :$COLOR $COUNTER / $AMOUNT_OF_BUILDS\e[0m │\n╰────────────────╯"
+
+	case "$1" in 
+		-l|--list)
+			echo "Containers built :"
+		docker image ls
+		;;
+esac
+
 ;;
+
 esac
