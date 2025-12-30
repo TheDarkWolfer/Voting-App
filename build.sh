@@ -2,6 +2,10 @@
 
 echo -e "Build script for Camille's PRADO Docker project"
 
+if [[ "$(git branch --show-current)" == "twilight-zone" ]] ; then
+	echo -e "This is the experimental branch : changes may be unstable or break, beware !"
+fi
+
 case "$1" in
 	-h|--help)
 		echo -e "Script permettant de construire les conteneurs Dockers du projet de Camille PRADO"
