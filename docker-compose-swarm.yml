@@ -8,9 +8,16 @@ services:
     
     # Deux REDIS, si besoin est
     deploy:
+      mode: replicated
       replicas: 2
       restart_policy:
-        condition: any
+        condition: on-failure
+        delay: 15
+        max_attempts: 3
+        window: 60s
+
+      constraints:
+        - node.role == worker
   
   postgresql:
     image: 'bitnami/postgresql:latest'
@@ -25,12 +32,18 @@ services:
 
     # Pareil pour PostgreSQL
     deploy:
+      mode: replicated
       replicas: 2
       restart_policy:
-        condition: any
+        condition: on-failure
+        delay: 30
+        max_attempt: 3
+        window: 60s
+      constraints:
+        - node.role == worker
   
   votebox:
-    image: 'camille/voting-votebox:1.0.0'
+    image: 'localhost:5000/voting-votebox:1.0.0'
     ports:
       - 8080:8080
     environment:
@@ -42,12 +55,18 @@ services:
       - vote-network
       - processing-network
     deploy:
+      mode: replicated
       replicas: 2
       restart_policy:
-        condition: any
+        condition: always
+        delay: 15
+        max_attempt: 3
+        window: 30s
+      constraints:
+        - node.role == worker
 
   worker:
-    image: 'camille/voting-worker:1.0.0'
+    image: 'localhost:5000/voting-worker:1.0.0'
     ports:
       - 80:80
       - 443:443
@@ -60,9 +79,19 @@ services:
       - REDIS_HOST=redis
     networks:
       - processing-network
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 60
+        max_attempts: 6
+        window: 60s
+      constraints:
+        - node.role == worker
 
   dashboard:
-    image: 'camille/voting-dashboard:1.0.0'
+    image: 'localhost:5000/voting-dashboard:1.0.0'
     ports:
       - "8888:8888"
     environment:
@@ -71,9 +100,15 @@ services:
       - vote-network
       - processing-network
     deploy:
+      mode: replicated
       replicas: 2
       restart_policy:
-        condition: any
+        condition: on-failure
+        delay: 30
+        max_attempts: 2
+        window: 60s
+      constraints:
+        - node.role == worker
 
 networks:
   vote-network:

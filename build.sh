@@ -41,9 +41,10 @@ if docker build --tag voting-redis:1.0.0 -f=DOCKERFILE-Redis . ;
 fi
 
 # On laisse l'option de paramétrer certaines valeusr'
+# On tag le conteneur pour le registre local, sans quoi on ne pourra pas l'y uploader
 echo -e "Building the voting container..."
-if docker build --tag voting-python:1.0.0  \
-	--build-arg REDIS_HOST="$REDIS_HOST" \
+if docker build --tag voting-votebox:1.0.0  \
+	--tag localhost:5000/voting-votebox:1.0.0 \ 	--build-arg REDIS_HOST="$REDIS_HOST" \
 	--build-arg REDIS_PORT="$REDIS_PORT" \
 	--build-arg REDIS_DB="$REDIS_DB" \
 	--build-arg REDIS_TIMEOUT="$REDIS_TIMEOUT" \
@@ -75,6 +76,7 @@ fi
 
 echo -e "Building the dotnet container..."
 if docker build --tag voting-worker:1.0.0 \
+	--tag localhost:5000/voting-worker:1.0.0 \
 	--build-arg PG_HOST="$PG_HOST" \
 	--build-arg PG_PORT="$PG_PORT" \
 	--build-arg PG_USER="$PG_USER" \
@@ -91,6 +93,7 @@ fi
 
 echo -e "Building the result dashboard container..."
 if docker build --tag voting-dashboard:1.0.0 \
+	--tag localhost:5000/voting-dashboard:1.0.0 \
 	--build-arg POSTGRE_HOST="$PG_HOST" \
 	-f=DOCKERFILE-Statistiques . ; 
 	then 
@@ -110,8 +113,14 @@ echo -e "╭────────────────╮\n│ Builds :$CO
 	case "$1" in 
 		-l|--list)
 			echo "Containers built :"
-		docker image ls
+			docker image ls
 		;;
+		-p|--publish)
+			echo -e "Publishing containers to local registry at localhost:5000"
+			docker push localhost:5000/voting-votebox:1.0.0
+			docker push localhost:5000/voting-dashboard:1.0.0
+			docker push localhost:5000/voting-worker:1.0.0
+			echo -e "Published containers to local registry !"
 esac
 
 ;;
