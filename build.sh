@@ -6,12 +6,8 @@ case "$1" in
 	-h|--help)
 		echo -e "Script permettant de construire les conteneurs Dockers du projet de Camille PRADO"
 		echo -e "Arguments : "
-		echo -e "-e|--edit\t: Modifier les variables d'environnement des DOCKERFILEs"
 		echo -e "-o|--options\t: Modifier les options de vote (plus simple que de modifier les dockerfiles dans leur entièreté)"
 		echo -e "-h|--help\: Affiche ce message"
-		;;
-	-e|--edit)
-		echo "NYI"
 		;;
 	*)
 	echo -e "Début du build des conteneurs..."

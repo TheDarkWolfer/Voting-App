@@ -38,8 +38,11 @@ case "$1" in
 		echo -e "\t--options\t\t: Permet de choisir les options de vote (argument expérimental)"
 		;;
 	-s|--swarm)
-		echo "Not yet implemented, sorry (¬_¬)''" ; exit -1
-		docker stack deploy voting-app --compose-file docker-compose-swarm.yml
+		read -r -p "Refer to the README.md for further instructions.\nLaunch the stack ? \n[y/N]>" runSwarm
+			
+		if [[ "${runSwarm,,}" == "y" ]] ; then
+			docker stack deploy voting-app --compose-file docker-compose-swarm.yml
+		fi
 		;;
 	-c|--compose)
 		docker compose up
