@@ -5,15 +5,27 @@ services:
       - 6379:6379
     networks:
       - processing-network
+
+    volumes:
+      - redis_data:/data
     
     # Deux REDIS, si besoin est
     deploy:
-      replicas: 2
+      mode: replicated
+      replicas: 1
       restart_policy:
-        condition: any
+        condition: on-failure
+        delay: 15s
+        max_attempts: 3
+        window: 60s
+      placement:
+        constraints:
+          - node.role == worker
   
   postgresql:
     image: 'bitnami/postgresql:latest'
+    volumes:
+      - pg_data:/bitnami/postgresql
     ports:
       - 5432:5432
     environment:
@@ -25,12 +37,20 @@ services:
 
     # Pareil pour PostgreSQL
     deploy:
-      replicas: 2
+      mode: replicated
+      replicas: 1
       restart_policy:
-        condition: any
+        condition: on-failure
+        delay: 30s
+        max_attempts: 3
+        window: 60s
+        
+      placement:
+        constraints:
+          - node.role == worker
   
-  vote:
-    image: 'camille/voting-vote:1.0.0'
+  votebox:
+    image: 'localhost:5000/voting-votebox:1.0.0'
     ports:
       - 8080:8080
     environment:
@@ -42,12 +62,19 @@ services:
       - vote-network
       - processing-network
     deploy:
+      mode: replicated
       replicas: 2
       restart_policy:
         condition: any
+        delay: 15s
+        max_attempts: 3
+        window: 30s
+      placement:
+        constraints:
+          - node.role == worker
 
   worker:
-    image: 'camille/voting-worker:1.0.0'
+    image: 'localhost:5000/voting-worker:1.0.0'
     ports:
       - 80:80
       - 443:443
@@ -60,9 +87,21 @@ services:
       - REDIS_HOST=redis
     networks:
       - processing-network
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 60s
+        max_attempts: 6
+        window: 60s
 
-  result:
-    image: 'camille/voting-result:1.0.0'
+      placement:
+        constraints:
+          - node.role == worker
+
+  dashboard:
+    image: 'localhost:5000/voting-dashboard:1.0.0'
     ports:
       - "8888:8888"
     environment:
@@ -71,12 +110,23 @@ services:
       - vote-network
       - processing-network
     deploy:
+      mode: replicated
       replicas: 2
       restart_policy:
-        condition: any
+        condition: on-failure
+        delay: 30s
+        max_attempts: 2
+        window: 60s
+      placement:
+        constraints:
+          - node.role == worker
 
 networks:
   vote-network:
     driver: overlay
   processing-network:
     driver: overlay
+
+volumes: 
+  pg_data:
+  redis_data:
