@@ -1,5 +1,14 @@
 # Projet SUPINFO : Voting app
 
+## Branches
+### `twilight-zone` :
+- Branche de test, plus avancée mais potentiellement plus instable
+- Sauf nécessité absolue, préférer la branche `master` pour les environnements de production
+### `master` :
+- Branche stable / principale
+- Fonctionnalités testées dans la branche `twilight-zone` avant intégration
+- À préférer pour le déploiement en production
+
 ## De quoi s'agit-il ?
 Ce dépôt de code contient les rendus du projet sur Docker, dans le cadre de mes études à SUPINFO. 
 Cela consiste en trois parties : 
