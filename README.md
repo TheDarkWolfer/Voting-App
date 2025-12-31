@@ -30,7 +30,7 @@ Le fichier `docker-compose.yml` part du principe que vous avez construit les con
 Il faut noter que les variables d'environnement, telles que le choix des options, se fait soit en modifiant les DOCKERFILES des conteneurs conservés, ou dans le cas des choix de vote, au travers du script `run.sh` quand on lance les conteneurs. 
 
 ### Docker swarm 
-> [!WIP]
+> [!INFO]
 De par la différence de fonctionnement de Docker Swarm, il faudra au préalable construire les conteneurs avant de les publier sur un registre externe. 
 Pour ce faire, il faut lancer le script `build.sh` au préalable, et publier les conteneurs comme suit :
 ```bash 

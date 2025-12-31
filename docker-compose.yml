@@ -9,7 +9,7 @@ services:
       - processing-network
 
     volumes:
-      - votebox_redis:/data
+      - vote_redis:/data
 
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -33,7 +33,7 @@ services:
       - processing-network
 
     volumes:
-      - votebox_pgdata:/var/lib/postgresql/data
+      - vote_pgdata:/var/lib/postgresql/data
 
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
@@ -43,7 +43,7 @@ services:
       start_period: 10s
   
 
-  votebox:
+  vote:
     build:
       context: .
       dockerfile: DOCKERFILE-Votebox
@@ -69,7 +69,7 @@ services:
       - processing-network
 
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://votebox:8080 || exit 1"]
+      test: ["CMD-SHELL", "curl -fsS http://vote:8080 || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -107,7 +107,7 @@ services:
       start_period: 20s
 
 
-  dashboard:
+  result:
     build:
       context: .
       dockerfile: DOCKERFILE-Statistiques
@@ -126,7 +126,7 @@ services:
       - postgresql
     
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://dashboard:8888 || exit 1"]
+      test: ["CMD-SHELL", "curl -fsS http://result:8888 || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -139,12 +139,12 @@ networks:
 
   
 volumes:
-  votebox_pgdata:
+  vote_pgdata:
     labels:
-      project: votebox
+      project: vote
       role: database
 
-  votebox_redis:
+  vote_redis:
     labels:
-      project: votebox
+      project: vote
       role: cache

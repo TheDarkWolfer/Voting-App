@@ -2,7 +2,7 @@
 # Un petit script qui lance les conteneurs d'un coup, vu que cinq conteneurs ça fait un paquet de commandes et d'arguments à taper.
 
 # Le script contient un compteur qui permet de savoir combien de conteneurs ont étés lancés avec succès ; le total est dynamiquement compté grâce aux mots-clef `if`. De ce fait, il faut parfois modifier ce chiffre, pour que le compte soit bon ^^'
-OFFSET=10
+OFFSET=11
 
 case "$1" in
 
@@ -10,10 +10,10 @@ case "$1" in
 		docker ps | tail -n "$(($(docker ps | wc -l)-1))" | awk '{print $1}' | xargs docker kill
 
 		# Option pour supprimer les résultats de vote et recommencer de zéro
-		read -r -p "Supprimer les volumes ? [y/N]: " delVol
+		read -r -p "Supprimer les volumes ? (Les conteneurs les utilisants doivent être supprimés auparavant) [y/N]: " delVol
 		if [[ "${delVol,,}"  == "y" ]]; then
 			if docker volume ls | awk '{print $2}' | grep voting-app_ ; then
-				if docker volume rm {voting-app_votebox_pgdata,voting-app_votebox_redis} ; then
+				if docker volume rm {voting-app_vote_pgdata,voting-app_vote_redis} ; then
 					echo -e "Volumes supprimés !"
 				else
 					echo -e "Erreur lors de la suppression des volumes (つ╥﹏╥)つ"
@@ -87,7 +87,7 @@ case "$1" in
 		OPTION_B="Dogs"
 	fi
 
-	if docker run -d --rm -p 8080:8080 --env OPTION_A="$OPTION_A" --env OPTION_B="$OPTION_B" --name voting-app --network vote-network --network processing-network voting-python:1.0.0 ; then
+	if docker run -d --rm -p 8080:8080 --env OPTION_A="$OPTION_A" --env OPTION_B="$OPTION_B" --name voting-app --network vote-network --network processing-network voting-vote:1.0.0 ; then
 		((COUNTER++))
 		echo -e "Voting app container launched !"
 	else 
@@ -102,12 +102,12 @@ case "$1" in
 		echo -e "Error launching the data worker container :("
 	fi
 
-	echo -e "Launching results dashboard container..."
-	if docker run -d --rm -p 8888:8888 --name voting-dashboard --network vote-network --network processing-network voting-dashboard:1.0.0 ; then 
+	echo -e "Launching results container..."
+	if docker run -d --rm -p 8888:8888 --name voting-result --network vote-network --network processing-network voting-result:1.0.0 ; then 
 		((COUNTER++))
 		echo -e "Dashboard container launched !"
 	else 
-		echo -e "Error launching the dashboard container :("
+		echo -e "Error launching the dashboardcontainer :("
 	fi
 
 	# Si tous les lancements se sont bien passés, on affiche le résultat en vert, et en rouge si il y a eu un soucis

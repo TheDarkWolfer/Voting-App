@@ -38,7 +38,7 @@ fi
 
 # On laisse l'option de paramétrer certaines valeusr'
 echo -e "Building the voting container..."
-if docker build --tag voting-python:1.0.0  \
+if docker build --tag voting-vote:1.0.0  \
 	--build-arg REDIS_HOST="$REDIS_HOST" \
 	--build-arg REDIS_PORT="$REDIS_PORT" \
 	--build-arg REDIS_DB="$REDIS_DB" \
@@ -85,15 +85,15 @@ if docker build --tag voting-worker:1.0.0 \
 		echo -e "╭─────────────────────────────────────╮\n│ Error building the dotnet container │\n╰─────────────────────────────────────╯"
 fi
 
-echo -e "Building the result dashboard container..."
-if docker build --tag voting-dashboard:1.0.0 \
+echo -e "Building the result container..."
+if docker build --tag voting-result:1.0.0 \
 	--build-arg POSTGRE_HOST="$PG_HOST" \
 	-f=DOCKERFILE-Statistiques . ; 
 	then 
 		((COUNTER++))
-		echo -e "╭─────────────────────────────────────────────────╮\n│ Done building the results dashboard container ! │\n╰─────────────────────────────────────────────────╯" 
+		echo -e "╭───────────────────────────────────────╮\n│ Done building the results container ! │\n╰───────────────────────────────────────╯" 
 	else 
-		echo -e "╭────────────────────────────────────────────────╮\n│ Error building the results dashboard container │\n╰────────────────────────────────────────────────╯"
+		echo -e "╭──────────────────────────────────────╮\n│ Error building the results container │\n╰──────────────────────────────────────╯"
 fi
 # Si tous les builds se sont bien passés, on affiche le résultat en vert, et en rouge si il y a eu un soucis
 COLOR="\e[31m" # On part du principe que tout se passe mal

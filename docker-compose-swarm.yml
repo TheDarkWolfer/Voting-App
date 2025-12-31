@@ -29,8 +29,8 @@ services:
       restart_policy:
         condition: any
   
-  votebox:
-    image: 'camille/voting-votebox:1.0.0'
+  vote:
+    image: 'camille/voting-vote:1.0.0'
     ports:
       - 8080:8080
     environment:
@@ -61,8 +61,8 @@ services:
     networks:
       - processing-network
 
-  dashboard:
-    image: 'camille/voting-dashboard:1.0.0'
+  result:
+    image: 'camille/voting-result:1.0.0'
     ports:
       - "8888:8888"
     environment:
