@@ -27,6 +27,10 @@ Cela consiste en trois parties :
         - processing-network : regroupe les machines traitant les résultats de vote
 
 - 3. Configuration Docker Swarm pour s'assurer que l'application reste disponible aux utilisateur.ices
+    - 1. Adaptation du `docker-compose.yml`
+    - 2. Ajout de conditions de redémarrage des processus workers
+    - 3. Ajout de conditions de déduplication des processus tels que l'endpoint de vote
+    - 4. Ajout de contraintes de création, afin de s'assurer que les services sont déployés sur les bon noeuds
 
 ## Comment l'utiliser ?
 ### Dockerfiles 
