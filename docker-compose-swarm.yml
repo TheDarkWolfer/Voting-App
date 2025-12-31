@@ -5,22 +5,27 @@ services:
       - 6379:6379
     networks:
       - processing-network
+
+    volumes:
+      - redis_data:/data
     
     # Deux REDIS, si besoin est
     deploy:
       mode: replicated
-      replicas: 2
+      replicas: 1
       restart_policy:
         condition: on-failure
-        delay: 15
+        delay: 15s
         max_attempts: 3
         window: 60s
-
-      constraints:
-        - node.role == worker
+      placement:
+        constraints:
+          - node.role == worker
   
   postgresql:
     image: 'bitnami/postgresql:latest'
+    volumes:
+      - pg_data:/bitnami/postgresql
     ports:
       - 5432:5432
     environment:
@@ -33,14 +38,16 @@ services:
     # Pareil pour PostgreSQL
     deploy:
       mode: replicated
-      replicas: 2
+      replicas: 1
       restart_policy:
         condition: on-failure
-        delay: 30
-        max_attempt: 3
+        delay: 30s
+        max_attempts: 3
         window: 60s
-      constraints:
-        - node.role == worker
+        
+      placement:
+        constraints:
+          - node.role == worker
   
   votebox:
     image: 'localhost:5000/voting-votebox:1.0.0'
@@ -58,12 +65,13 @@ services:
       mode: replicated
       replicas: 2
       restart_policy:
-        condition: always
-        delay: 15
-        max_attempt: 3
+        condition: any
+        delay: 15s
+        max_attempts: 3
         window: 30s
-      constraints:
-        - node.role == worker
+      placement:
+        constraints:
+          - node.role == worker
 
   worker:
     image: 'localhost:5000/voting-worker:1.0.0'
@@ -84,11 +92,13 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
-        delay: 60
+        delay: 60s
         max_attempts: 6
         window: 60s
-      constraints:
-        - node.role == worker
+
+      placement:
+        constraints:
+          - node.role == worker
 
   dashboard:
     image: 'localhost:5000/voting-dashboard:1.0.0'
@@ -104,14 +114,19 @@ services:
       replicas: 2
       restart_policy:
         condition: on-failure
-        delay: 30
+        delay: 30s
         max_attempts: 2
         window: 60s
-      constraints:
-        - node.role == worker
+      placement:
+        constraints:
+          - node.role == worker
 
 networks:
   vote-network:
     driver: overlay
   processing-network:
     driver: overlay
+
+volumes: 
+  pg_data:
+  redis_data:

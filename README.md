@@ -23,7 +23,7 @@ Cela consiste en trois parties :
 ### Dockerfiles 
 Il est possible de compiler localement les conteneurs à partir des dockerfiles ; deux options s'offrent à vous. La première, plus simple, se fait au travers du script `build.sh`. Il suffit de le lancer depuis la racine du dépôt pour que les conteneurs soient créés en suivant les DOCKERFILEs (note : il faut que `docker` soit installé, et que vous ayez récupéré l'entièreté des fichiers, les DOCKERFILEs ayant besoin du code source des applications)
 
-La seconde, plus manuelle, consiste à compiler un par un les conteneurs. Celle-ci vous permet plus de granularité dans le choix des noms voire les modifications apportées au code, mais rique d'être incompatible avec les solutions qui vont suivre.
+La seconde, plus manuelle, consiste à compiler un par un les conteneurs. Celle-ci vous permet plus de granularité dans le choix des noms voire les modifications apportées au code, mais risque d'être incompatible avec les solutions qui vont suivre.
 
 ### Docker compose
 Le fichier `docker-compose.yml` part du principe que vous avez construit les conteneurs Votebox, Dotnet et Dashboard. Vous pouvez ensuite lancer le stack entier avec le script `run.sh -c/--compose` (et `run.sh -k/--killall` pour tout arrêter), ou bien avec la commande `docker compose up` (et l'arrêter avec `docker compose down`).
@@ -48,5 +48,21 @@ docker push camille/votebox:1.0.0
 ```
 L'utilisation de Redis et de PostgreSQL, dans le cadre de ce projet, ne nécessite pas un build particulier, donc nous pouvons nous permettre de les omettre dans l'étape précédente.
 
-#### 3.
+#### 3. Ajout de workers
+Il faut ensuite ajouter des noeuds dans le cluster ; On peut faire cela en lançant la commande suivante sur les machines (virtuelles ou physiques) :
+```
+docker swarm init
+```
+
+#### 4. Lancement du stack
+La dernière étape est de lancer le stack tout entier ; avec le fichier `docker-compose-swarm.yml` dans le répertoire actif :
+```bash
+docker stack deploy -c docker-compose-swarm.yml voting-app
+# Puis, pour vérifier que tout est lancé :
+docker stack services voting-app
+docker service logs voting-app_votebox
+```
+
+#### 5. Arrêt du stack 
+Après que l'application ait été utilisée, on peut l'arrêter avec la commande `docker stack rm voting-app`
 
