@@ -16,7 +16,8 @@ case "$1" in
 
 # Pour compter le nombre de conteneurs qui sont construits avec succès, pour faciliter la lecture des logs 
 COUNTER=0
-AMOUNT_OF_BUILDS=$(($(grep -c if $0)-5))
+OFFSET=4
+AMOUNT_OF_BUILDS=$(($(grep -c if $0)-$OFFSET))
 
 # On source les différents .ENVs du projet 
 export $(grep -v '^#' .env-votebox | xargs)
@@ -24,7 +25,7 @@ export $(grep -v '^#' .env-redis | xargs)
 export $(grep -v '^#' .env-postgresql | xargs)
 
 echo -e "Building the Redis container..."
-if docker build --tag voting-redis:1.0.0 -f=DOCKERFILE-Redis . ;
+if docker build --tag voting-redis:1.0.0 -f=DOCKERFILE-redis . ;
 	then
 		((COUNTER++))
 		echo -e "╭─────────────────────────────────────╮\n│ Done building the Redis container ! │\n╰─────────────────────────────────────╯"
@@ -39,16 +40,16 @@ if docker build --tag voting-vote:1.0.0  \
 	--build-arg REDIS_PORT="$REDIS_PORT" \
 	--build-arg REDIS_DB="$REDIS_DB" \
 	--build-arg REDIS_TIMEOUT="$REDIS_TIMEOUT" \
-	-f=DOCKERFILE-Votebox . ; 
+	-f=DOCKERFILE-vote . ; 
 	then 
 		((COUNTER++))
 		echo -e "╭──────────────────────────────────────╮\n│ Done building the voting container ! │\n╰──────────────────────────────────────╯" 
 	else 
-		echo -e "╭─────────────────────────────────────╮\│ Error building the voting container │\n╰─────────────────────────────────────╯"
+		echo -e "╭─────────────────────────────────────╮\n│ Error building the voting container │\n╰─────────────────────────────────────╯"
 fi
 
 echo -e "Building the postgresql container..."
-if docker build --tag voting-postgresql:1.0.0 -f=DOCKERFILE-Postgresql . ; 
+if docker build --tag voting-postgresql:1.0.0 -f=DOCKERFILE-postgresql . ; 
 	then 
 		((COUNTER++))
 		echo -e "╭──────────────────────────────────────────╮\n│ Done building the postgresql container ! │\n╰──────────────────────────────────────────╯" 
@@ -73,7 +74,7 @@ if docker build --tag voting-worker:1.0.0 \
 	--build-arg PG_PASSWORD="$PG_PASSWORD" \
 	--build-arg PG_DB="$PG_DB" \
 	--build-arg REDIS_HOST="$REDIS_HOST" \
-	-f=DOCKERFILE-Dotnet . ; 
+	-f=DOCKERFILE-worker . ; 
 	then 
 		((COUNTER++))
 		echo -e "╭──────────────────────────────────────╮\n│ Done building the Dotnet container ! │\n╰──────────────────────────────────────╯" 
@@ -84,7 +85,7 @@ fi
 echo -e "Building the result container..."
 if docker build --tag voting-result:1.0.0 \
 	--build-arg POSTGRE_HOST="$PG_HOST" \
-	-f=DOCKERFILE-Statistiques . ; 
+	-f=DOCKERFILE-results . ; 
 	then 
 		((COUNTER++))
 		echo -e "╭───────────────────────────────────────╮\n│ Done building the results container ! │\n╰───────────────────────────────────────╯" 

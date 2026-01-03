@@ -46,7 +46,7 @@ services:
   vote:
     build:
       context: .
-      dockerfile: DOCKERFILE-Votebox
+      dockerfile: DOCKERFILE-vote
 
     ports:
       - 8080:8080
@@ -78,7 +78,7 @@ services:
   worker:
     build:
       context: .
-      dockerfile: DOCKERFILE-Dotnet
+      dockerfile: DOCKERFILE-worker
 
     ports:
       - 80:80
@@ -110,7 +110,7 @@ services:
   result:
     build:
       context: .
-      dockerfile: DOCKERFILE-Statistiques
+      dockerfile: DOCKERFILE-results
 
     ports:
       - "8888:8888"

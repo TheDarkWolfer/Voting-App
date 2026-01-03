@@ -2,7 +2,7 @@
 # Un petit script qui lance les conteneurs d'un coup, vu que cinq conteneurs ça fait un paquet de commandes et d'arguments à taper.
 
 # Le script contient un compteur qui permet de savoir combien de conteneurs ont étés lancés avec succès ; le total est dynamiquement compté grâce aux mots-clef `if`. De ce fait, il faut parfois modifier ce chiffre, pour que le compte soit bon ^^'
-OFFSET=11
+OFFSET=12
 
 case "$1" in
 
@@ -13,7 +13,7 @@ case "$1" in
 		read -r -p "Supprimer les volumes ? (Les conteneurs les utilisants doivent être supprimés auparavant) [y/N]: " delVol
 		if [[ "${delVol,,}"  == "y" ]]; then
 			if docker volume ls | awk '{print $2}' | grep voting-app_ ; then
-				if docker volume rm {voting-app_vote_pgdata,voting-app_vote_redis} ; then
+				if docker volume rm {voting-app_vote_pgdata,voting-app_vote_redis} >/dev/null; then
 					echo -e "Volumes supprimés !"
 				else
 					echo -e "Erreur lors de la suppression des volumes (つ╥﹏╥)つ"
@@ -53,11 +53,11 @@ case "$1" in
 
 		# Si les réseaux n'existent pas, '
 		if docker network ls | awk '{print $2}' | grep 'vote-network' > /dev/null ; then
-			docker network create vote-network && echo -e "Réseau de vote (public) créé" || echo -e "Erreur lors de la création du réseaux de vote (public) !"
+			docker network create vote-network && echo -e "Réseau de vote (public) créé" >/dev/null || echo -e "Erreur lors de la création du réseaux de vote (public) !"
 		fi 
 
 		if docker network ls | awk '{print $2}' | grep 'vote-network' > /dev/null ; then
-			docker network create processing-network && echo -e "Réseau de traitement (privé) créé" || echo -e "Erreur lors de la création du réseaux de traitement (privé) !"
+			docker network create processing-network && echo -e "Réseau de traitement (privé) créé" >/dev/null || echo -e "Erreur lors de la création du réseaux de traitement (privé) !"
 		fi 
 
 	COUNTER=0

@@ -39,11 +39,11 @@ Il est possible de compiler localement les conteneurs à partir des dockerfiles 
 La seconde, plus manuelle, consiste à compiler un par un les conteneurs. Celle-ci vous permet plus de granularité dans le choix des noms voire les modifications apportées au code, mais risque d'être incompatible avec les solutions qui vont suivre.
 
 ### Docker compose
-Le fichier `docker-compose.yml` part du principe que vous avez construit les conteneurs Votebox, Dotnet et Dashboard. Vous pouvez ensuite lancer le stack entier avec le script `run.sh -c/--compose` (et `run.sh -k/--killall` pour tout arrêter), ou bien avec la commande `docker compose up` (et l'arrêter avec `docker compose down`).
+Le fichier `docker-compose.yml` part du principe que vous avez construit les conteneurs `vote`, `worker` et `results`. Vous pouvez ensuite lancer le stack entier avec le script `run.sh -c/--compose` (et `run.sh -k/--killall` pour tout arrêter), ou bien avec la commande `docker compose up` (et l'arrêter avec `docker compose down`).
 Il faut noter que les variables d'environnement, telles que le choix des options, se fait soit en modifiant les DOCKERFILES des conteneurs conservés, ou dans le cas des choix de vote, au travers du script `run.sh` quand on lance les conteneurs. 
 
 ### Docker swarm 
-> [!WIP]
+> [!INFO]
 De par la différence de fonctionnement de Docker Swarm, il faudra au préalable construire les conteneurs avant de les publier sur un registre externe<sup>1</sup>. 
 
 #### 1.Construction
@@ -79,3 +79,14 @@ docker service logs voting-app_votebox
 #### 5. Arrêt du stack 
 Après que l'application ait été utilisée, on peut l'arrêter avec la commande `docker stack rm voting-app`
 
+#### 6. Nettoyage
+> [!INFO] Cette étape est également applicable aux autres façons de faire ; toutes les procédures utilisent des volumes docker pour la persistence des résultats.
+
+Pour effacer les données du vote, vous pouvez supprimer les volumes attachés avec la commande suivante, qui va filtrer les conteneurs avec "voting" dans leur nom (les conteneurs étant nommés au moment de leur construction), puis va les supprimer ainsi que les volumes leur étant attachés
+```bash
+docker rm -fv $(docker ps -a --filter "name=voting" --format "{{.ID}}")
+```
+Vous pouvez également supprimer tous les réseaux que vous avez sur votre machine (cette commande ignore les réseaux docker natifs tels que `bridge`)
+```bash
+docker network ls | tail -n $(($(docker network ls | wc -l)-1)) | awk '{print $1}' | xargs docker network rm
+```
